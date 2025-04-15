@@ -1,0 +1,24 @@
+{{- if .Values.cyberpunk.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-cyberpunk
+  labels:
+    app.kubernetes.io/name: {{ include "fuinjutsu.name" . }}-cyberpunk
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  type: {{ .Values.cyberpunk.service.type }}
+  ports:
+    - port: {{ .Values.cyberpunk.service.ports.taipy }}
+      targetPort: taipy
+      protocol: TCP
+      name: taipy
+    - port: {{ .Values.cyberpunk.service.ports.http }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: {{ include "fuinjutsu.name" . }}-cyberpunk
+    app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}

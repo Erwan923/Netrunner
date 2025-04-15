@@ -1,0 +1,39 @@
+Thank you for installing {{ .Chart.Name }}.
+
+Your release is named {{ .Release.Name }}.
+
+To access the application:
+
+{{- if .Values.ingress.enabled }}
+{{- range $host := .Values.ingress.hosts }}
+  {{- range .paths }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
+  {{- end }}
+{{- end }}
+{{- else if contains "LoadBalancer" .Values.proxy.service.type }}
+  NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+        You can watch the status by running 'kubectl get --namespace {{ .Release.Namespace }} svc -w {{ .Release.Name }}-proxy'
+  
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ .Release.Name }}-proxy --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+  echo http://$SERVICE_IP:{{ .Values.proxy.service.port }}
+{{- else if contains "ClusterIP" .Values.proxy.service.type }}
+  kubectl port-forward --namespace {{ .Release.Namespace }} svc/{{ .Release.Name }}-proxy {{ .Values.proxy.service.port }}:{{ .Values.proxy.service.port }}
+  
+  Then access the application at:
+  http://localhost:{{ .Values.proxy.service.port }}
+{{- else if contains "NodePort" .Values.proxy.service.type }}
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ .Release.Name }}-proxy)
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo http://$NODE_IP:$NODE_PORT
+{{- end }}
+
+Available endpoints:
+- /cyberpunk/      - Interface Cyberpunk 
+- /mcp/            - Interface MCP (Model Context Protocol)
+- /cyberpunk-ui/   - Interface Cyberpunk HTML
+- /api/mcp/        - API REST pour les MCPs
+
+To get your API keys, go to the MCP interface and click on "Gérer les clés API".
+
+For more information, please visit:
+https://github.com/example/fuinjutsu

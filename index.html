@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fûinjutsu - Interface IA Cyberpunk</title>
+  <link rel="stylesheet" href="cyberpunk-style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- En-tête principal -->
+  <header class="header">
+    <div class="status-indicator">NO SIGNAL</div>
+    <div class="logo">FÛINJUTSU AI</div>
+    <nav class="main-nav">
+      <a href="#">HOME</a>
+      <a href="#">MODELS</a>
+      <a href="#">SETTINGS</a>
+    </nav>
+    <div class="date-display">
+      <span id="current-date">04 APRIL</span>
+      <span id="current-year">2077</span>
+    </div>
+  </header>
+
+  <!-- Conteneur principal -->
+  <div class="main-container">
+    <!-- Barre latérale pour sélection d'IA -->
+    <aside class="ai-sidebar">
+      <h2>AI SYSTEMS</h2>
+      <ul class="ai-list">
+        <li><button class="active" id="flan-t5-model">FLAN-T5 <span class="ai-status"></span></button></li>
+        <li><button id="gpt-model">GPT-3.5 <span class="ai-status"></span></button></li>
+        <li><button>Claude <span class="ai-status"></span></button></li>
+        <li><button>Llama <span class="ai-status"></span></button></li>
+        <li><button>Mistral <span class="ai-status"></span></button></li>
+        <li><button>Gemini <span class="ai-status"></span></button></li>
+        <li><button>Nemotron <span class="ai-status"></span></button></li>
+      </ul>
+      
+      <h2>SERVICES</h2>
+      <div class="service-box">
+        <h3 class="box-title">Text Generation</h3>
+      </div>
+      <div class="service-box">
+        <h3 class="box-title">Image Generation</h3>
+      </div>
+      <div class="service-box">
+        <h3 class="box-title">Audio Processing</h3>
+      </div>
+      
+      <div class="ui-elements-label">CONVERSATION HISTORY</div>
+      <div id="conversation-history">
+        <!-- Les conversations sauvegardées seront affichées ici -->
+      </div>
+    </aside>
+
+    <!-- Zone de chat principale -->
+    <main class="chat-container">
+      <div class="tech-lines">
+        <div class="tech-line tech-line-horizontal" style="top: 30%;"></div>
+        <div class="tech-line tech-line-horizontal" style="top: 70%;"></div>
+        <div class="tech-line tech-line-vertical" style="left: 30%;"></div>
+        <div class="tech-line tech-line-vertical" style="left: 70%;"></div>
+      </div>
+
+      <div class="chat-header">
+        <h2 id="current-model">FLAN-T5 INTERFACE</h2>
+        <div class="chat-controls">
+          <button id="new-chat">New Chat</button>
+          <button id="toggle-settings">Settings</button>
+        </div>
+      </div>
+
+      <div class="chat-messages" id="chat-messages">
+        <div class="message message-ai">
+          <div class="message-header">
+            <span>FLAN-T5</span>
+            <span id="timestamp-1">16:42:23</span>
+          </div>
+          <div class="message-content">
+            Bienvenue dans l'interface Fûinjutsu. Comment puis-je vous assister aujourd'hui?
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input">
+        <textarea id="user-input" placeholder="Entrez votre message..."></textarea>
+        <button id="send-message">ENVOYER</button>
+      </div>
+    </main>
+
+    <!-- Panneau de personnalisation -->
+    <div class="customization-panel" id="settings-panel">
+      <div class="toggle-panel" id="toggle-panel">≡</div>
+      <h3>AI Parameters</h3>
+      
+      <div class="option-group">
+        <label for="model-select">Model</label>
+        <select id="model-select">
+          <option>FLAN-T5 XXL</option>
+          <option>GPT-3.5 Turbo</option>
+          <option>Custom Model</option>
+        </select>
+      </div>
+      
+      <div class="option-group">
+        <label for="temperature">Temperature</label>
+        <input type="range" id="temperature" min="0" max="100" value="70">
+      </div>
+      
+      <div class="option-group">
+        <label for="max-length">Max Length</label>
+        <input type="number" id="max-length" value="150">
+      </div>
+      
+      <div class="option-group">
+        <label for="api-key">API Key</label>
+        <input type="password" id="api-key" placeholder="Enter your API key">
+      </div>
+      
+      <button class="action-button" id="save-settings">Save Settings</button>
+      <button class="action-button" id="reset-defaults">Reset Defaults</button>
+    </div>
+  </div>
+
+  <script>
+    // Mettre à jour la date et l'heure actuelles
+    function updateDateTime() {
+      const now = new Date();
+      const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+      const date = now.getDate() + " " + months[now.getMonth()];
+      const year = now.getFullYear();
+      
+      document.getElementById('current-date').textContent = date;
+      document.getElementById('current-year').textContent = year;
+      
+      // Mettre à jour les timestamps des messages
+      const timestamps = document.querySelectorAll('[id^="timestamp-"]');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      const timeString = `${hours}:${minutes}:${seconds}`;
+      
+      timestamps.forEach(timestamp => {
+        timestamp.textContent = timeString;
+      });
+    }
+    
+    // Mettre à jour la date au chargement
+    updateDateTime();
+    
+    // Gérer l'ouverture/fermeture du panneau de personnalisation
+    document.getElementById('toggle-panel').addEventListener('click', function() {
+      document.getElementById('settings-panel').classList.toggle('open');
+    });
+    
+    document.getElementById('toggle-settings').addEventListener('click', function() {
+      document.getElementById('settings-panel').classList.toggle('open');
+    });
+    
+    // Gérer le changement de modèle
+    document.querySelectorAll('.ai-list button').forEach(button => {
+      button.addEventListener('click', function() {
+        // Retirer la classe active de tous les boutons
+        document.querySelectorAll('.ai-list button').forEach(btn => {
+          btn.classList.remove('active');
+        });
+        
+        // Ajouter la classe active au bouton cliqué
+        this.classList.add('active');
+        
+        // Mettre à jour le modèle actuel
+        const modelName = this.textContent.split(' ')[0];
+        document.getElementById('current-model').textContent = modelName + ' INTERFACE';
+      });
+    });
+    
+    // Gérer l'envoi de messages
+    document.getElementById('send-message').addEventListener('click', sendMessage);
+    document.getElementById('user-input').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+    
+    function sendMessage() {
+      const userInput = document.getElementById('user-input').value.trim();
+      if (userInput === '') return;
+      
+      const chatMessages = document.getElementById('chat-messages');
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      const timeString = `${hours}:${minutes}:${seconds}`;
+      
+      // Ajouter le message de l'utilisateur
+      const userMessageId = 'msg-' + Date.now();
+      chatMessages.innerHTML += `
+        <div class="message message-user">
+          <div class="message-header">
+            <span>User</span>
+            <span>${timeString}</span>
+          </div>
+          <div class="message-content">
+            ${userInput}
+          </div>
+        </div>
+      `;
+      
+      // Effacer l'entrée utilisateur
+      document.getElementById('user-input').value = '';
+      
+      // Faire défiler vers le bas
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+      
+      // Simuler une réponse de l'IA (à remplacer par l'appel API réel)
+      setTimeout(() => {
+        const currentModel = document.getElementById('current-model').textContent.split(' ')[0];
+        const aiResponseId = 'msg-' + Date.now();
+        
+        chatMessages.innerHTML += `
+          <div class="message message-ai">
+            <div class="message-header">
+              <span>${currentModel}</span>
+              <span>${timeString}</span>
+            </div>
+            <div class="message-content">
+              Je suis en train de traiter votre demande : "${userInput}"
+            </div>
+          </div>
+        `;
+        
+        // Faire défiler vers le bas
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+      }, 1000);
+    }
+    
+    // Gérer le bouton "New Chat"
+    document.getElementById('new-chat').addEventListener('click', function() {
+      document.getElementById('chat-messages').innerHTML = `
+        <div class="message message-ai">
+          <div class="message-header">
+            <span>${document.getElementById('current-model').textContent.split(' ')[0]}</span>
+            <span>${new Date().toLocaleTimeString()}</span>
+          </div>
+          <div class="message-content">
+            Bienvenue dans l'interface Fûinjutsu. Comment puis-je vous assister aujourd'hui?
+          </div>
+        </div>
+      `;
+    });
+  </script>
+</body>
+</html>

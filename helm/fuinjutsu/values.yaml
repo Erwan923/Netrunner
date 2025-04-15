@@ -1,0 +1,179 @@
+# Default values for Fûinjutsu Helm chart
+# This is a YAML-formatted file.
+
+# Configuration globale
+global:
+  environment: production
+  # Espace de noms Kubernetes
+  namespace: default
+  # Stockage
+  persistence:
+    enabled: true
+    storageClass: ""
+    size: 2Gi
+
+# Configuration pour l'image
+image:
+  repository: fuinjutsu
+  pullPolicy: IfNotPresent
+  # Image tag - si non spécifié, utilisera appVersion du Chart.yaml
+  tag: "latest"
+
+# Configuration pour le déploiement Cyberpunk
+cyberpunk:
+  enabled: true
+  replicaCount: 1
+  
+  service:
+    type: ClusterIP
+    ports:
+      taipy: 5000
+      http: 8000
+  
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 200m
+      memory: 256Mi
+  
+  # Sécurité
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+  
+  # Autoscaling
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80
+
+# Configuration pour le déploiement MCP
+mcp:
+  enabled: true
+  replicaCount: 1
+  
+  service:
+    type: ClusterIP
+    port: 5000
+  
+  resources:
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 200m
+      memory: 256Mi
+  
+  # Sécurité
+  securityContext:
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+  
+  # Autoscaling
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 80
+    targetMemoryUtilizationPercentage: 80
+
+# Configuration pour le proxy Nginx
+proxy:
+  enabled: true
+  replicaCount: 1
+  
+  service:
+    type: LoadBalancer
+    port: 80
+  
+  resources:
+    limits:
+      cpu: 200m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+  
+  # Configuration Nginx supplémentaire
+  config:
+    clientMaxBodySize: "10m"
+    proxyReadTimeout: 120
+
+# Configuration des clés API
+apiKeys:
+  # Secret Kubernetes existant contenant les clés API
+  # Format: <clé>: <valeur>
+  existingSecret: ""
+  # Ou spécifiez les clés directement (non recommandé pour la production)
+  create: true
+  keys:
+    HUGGINGFACE_API_KEY: ""
+    OPENAI_API_KEY: ""
+    ANTHROPIC_API_KEY: ""
+    GOOGLE_API_KEY: ""
+    MISTRAL_API_KEY: ""
+    COHERE_API_KEY: ""
+
+# Configuration de l'Ingress
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # Ajouter d'autres annotations selon les besoins
+  hosts:
+    - host: fuinjutsu.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+  #  - secretName: fuinjutsu-tls
+  #    hosts:
+  #      - fuinjutsu.local
+
+# Configuration des ressources pour le PVC
+persistence:
+  config:
+    enabled: true
+    size: 1Gi
+    accessMode: ReadWriteOnce
+    storageClass: ""
+  data:
+    enabled: true
+    size: 1Gi
+    accessMode: ReadWriteOnce
+    storageClass: ""
+
+# Paramètre des sondes de disponibilité
+probes:
+  liveness:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+  readiness:
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 6
+    successThreshold: 1
+  startup:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 12
+    successThreshold: 1
+
+# Configuration ServiceAccount
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
