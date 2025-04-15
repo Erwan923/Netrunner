@@ -3,9 +3,9 @@
 
 blob:moz-![Netrunner](https://github.com/user-attachments/assets/6c17908a-874b-4d88-9df9-4cfaa6615b81)
 
-Fûinjutsu est une interface immersive inspirée de l'esthétique cyberpunk pour utiliser plusieurs modèles de langage (LLMs). Cette implémentation utilise l'API HuggingFace avec le modèle google/flan-t5-xxl, mais peut facilement être adaptée à d'autres LLMs comme OpenAI GPT-3.5.
+Fûinjutsu est une interface immersive inspirée de l'esthétique cyberpunk pour utiliser plusieurs modèles de langage (LLMs). L'implémentation utilise l'API HuggingFace pour sa gratuité avec le modèle google/flan-t5-xxl, mais peut facilement être adaptée à d'autres LLMs comme OpenAI GPT-3.5.
 
-extension://44c67e95-7969-492e-ab8f-6bf5d02ed97d/95048fc7-788e-42e8-b3d1-d871dc8c9594
+
 
 ## Interface
 
